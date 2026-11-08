@@ -5,20 +5,25 @@
   "releaseEligible": true,
   "maintainer": "jannikco",
   "license": "MIT",
-  "sourceRevision": "cf9d0944f337d19acd230c6fff17487014d388f3a5b048b551f57c8d4d920942",
+  "sourceRevision": "26bb5765da33e28ff7a1daa29dfada38e7d0bf4d5d16f1cfd354a21420f6130b",
   "evidence": [
-    "Source-backed provider setup metadata",
-    "Offline configuration and MCP protocol tests"
+    "Actual tools/call and direct-provider request contract tests"
   ],
   "provenance": [
-    "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml"
+    "https://learn.microsoft.com/en-us/graph/api/overview",
+    "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow",
+    "https://learn.microsoft.com/en-us/graph/api/user-list-joinedteams?view=graph-rest-1.0",
+    "https://learn.microsoft.com/en-us/graph/api/channel-list?view=graph-rest-1.0"
   ],
   "id": "microsoft-teams-mcp",
-  "kind": "mcp-setup",
+  "kind": "provider-connector",
   "product": "pipmcp",
-  "title": "Microsoft Teams MCP setup and connection checker",
-  "description": "Generate Microsoft Teams MCP client configuration, inspect available tools and validate hosted endpoint access through PipMCP.",
-  "operationIds": [],
+  "title": "Microsoft Teams MCP server",
+  "description": "Find a team joined by your delegated account and inspect its channels before preparing a status report.",
+  "operationIds": [
+    "list_joined_teams",
+    "list_team_channels"
+  ],
   "appSlug": "microsoft-teams",
   "appName": "Microsoft Teams",
   "providerDocs": "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml",
@@ -30,10 +35,246 @@
       "client_secret",
       "owner_authorization"
     ],
+    "settings": {
+      "scopes": "offline_access User.Read Team.ReadBasic.All Channel.ReadBasic.All ChannelMessage.Read.All ChannelMessage.Send Chat.ReadWrite TeamMember.Read.All",
+      "authorization_url": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+    },
     "requiredHeaderNames": [],
     "helpUrl": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
     "tenantRequired": false,
     "accountParameterNames": []
   },
-  "attributionSlug": "github-microsoft-teams-mcp"
+  "attributionSlug": "github-microsoft-teams-mcp",
+  "artifactType": "connector",
+  "qualityVersion": 2,
+  "connectorId": "microsoft-teams",
+  "connector": {
+    "id": "microsoft-teams",
+    "name": "Microsoft Teams",
+    "version": "0.2.0",
+    "baseUrl": "https://graph.microsoft.com/v1.0",
+    "auth": {
+      "type": "oauth-access-token",
+      "env": "MICROSOFT_TEAMS_ACCESS_TOKEN"
+    },
+    "tools": [
+      {
+        "name": "list_joined_teams",
+        "description": "List teams joined by the delegated user; requires Team.ReadBasic.All.",
+        "method": "GET",
+        "path": "/me/joinedTeams",
+        "readOnly": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": [],
+          "additionalProperties": false
+        },
+        "bindings": {
+          "path": [],
+          "query": {},
+          "body": {}
+        },
+        "sampleArguments": {},
+        "provenance": [
+          "https://learn.microsoft.com/en-us/graph/api/user-list-joinedteams"
+        ]
+      },
+      {
+        "name": "list_team_channels",
+        "description": "List channels in one authorized team; requires Channel.ReadBasic.All.",
+        "method": "GET",
+        "path": "/teams/{teamId}/channels",
+        "readOnly": true,
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "teamId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512,
+              "description": "Identifier"
+            }
+          },
+          "required": [
+            "teamId"
+          ],
+          "additionalProperties": false
+        },
+        "bindings": {
+          "path": [
+            "teamId"
+          ],
+          "query": {},
+          "body": {}
+        },
+        "sampleArguments": {
+          "teamId": "00000000-0000-4000-8000-000000000001"
+        },
+        "provenance": [
+          "https://learn.microsoft.com/en-us/graph/api/channel-list"
+        ]
+      }
+    ],
+    "workflow": {
+      "name": "Team channel briefing",
+      "description": "Find a team joined by your delegated account and inspect its channels before preparing a status report.",
+      "steps": [
+        "list_joined_teams",
+        "list_team_channels"
+      ]
+    },
+    "provenance": [
+      "https://learn.microsoft.com/en-us/graph/api/overview",
+      "https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow",
+      "https://learn.microsoft.com/en-us/graph/api/user-list-joinedteams?view=graph-rest-1.0",
+      "https://learn.microsoft.com/en-us/graph/api/channel-list?view=graph-rest-1.0"
+    ],
+    "verification": "mock-only",
+    "providerLiveValidation": "not-run",
+    "capabilityEvidence": {
+      "local": {
+        "level": "Tested",
+        "operations": [
+          {
+            "name": "list_joined_teams",
+            "level": "Tested",
+            "evidenceRefs": [
+              "Provider request/stdio contract tests"
+            ],
+            "method": "contract-fixture"
+          },
+          {
+            "name": "list_team_channels",
+            "level": "Tested",
+            "evidenceRefs": [
+              "Provider request/stdio contract tests"
+            ],
+            "method": "contract-fixture"
+          }
+        ],
+        "evidenceRefs": [
+          "Provider request/stdio contract tests"
+        ],
+        "mode": "local"
+      },
+      "managed": {
+        "level": "Documented",
+        "operations": [
+          {
+            "name": "list_joined_teams",
+            "level": "Documented",
+            "evidenceRefs": [],
+            "method": "documentation"
+          },
+          {
+            "name": "list_team_channels",
+            "level": "Documented",
+            "evidenceRefs": [],
+            "method": "documentation"
+          }
+        ],
+        "evidenceRefs": [],
+        "mode": "managed"
+      }
+    },
+    "requiredScopes": [
+      "Team.ReadBasic.All",
+      "Channel.ReadBasic.All"
+    ],
+    "oauth": {
+      "authorizationUrl": "https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize",
+      "tokenUrl": "https://login.microsoftonline.com/organizations/oauth2/v2.0/token",
+      "pkce": true,
+      "redirectPort": 42813,
+      "clientIdEnv": "MICROSOFT_TEAMS_CLIENT_ID",
+      "scopeEnv": "MICROSOFT_TEAMS_OAUTH_SCOPES",
+      "scopes": [
+        "offline_access",
+        "https://graph.microsoft.com/Team.ReadBasic.All",
+        "https://graph.microsoft.com/Channel.ReadBasic.All"
+      ]
+    },
+    "setup": {
+      "instructions": "Register your own work/school Entra application as a native/mobile-and-desktop public client with loopback URI http://127.0.0.1:42813/callback; HTTP127.0.0.1 redirects may require editing the application manifest. Set MICROSOFT_TEAMS_CLIENT_ID and grant delegated Team.ReadBasic.All plus Channel.ReadBasic.All. These tools list your joined teams and visible channels; they do not read/send messages. Tenant policy may require admin consent. Personal Microsoft accounts are not supported for these Teams routes. No PipMCP account is needed."
+    },
+    "repoId": "microsoft-teams-mcp",
+    "appSlug": "microsoft-teams",
+    "product": "pipmcp",
+    "artifactType": "connector",
+    "sourceRevision": "26bb5765da33e28ff7a1daa29dfada38e7d0bf4d5d16f1cfd354a21420f6130b",
+    "authentication": {
+      "type": "oauth2_authorization_code",
+      "requiredCredentialFields": [
+        "client_id",
+        "client_secret",
+        "owner_authorization"
+      ],
+      "settings": {
+        "scopes": "offline_access User.Read Team.ReadBasic.All Channel.ReadBasic.All ChannelMessage.Read.All ChannelMessage.Send Chat.ReadWrite TeamMember.Read.All",
+        "authorization_url": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+        "token_url": "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+      },
+      "requiredHeaderNames": [],
+      "helpUrl": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
+      "tenantRequired": false,
+      "accountParameterNames": []
+    },
+    "managedAvailability": {
+      "status": "import-required",
+      "integration": "openapi-to-mcp",
+      "checkedAt": "2026-11-08T12:29:10.433747+00:00"
+    }
+  },
+  "capabilityEvidence": {
+    "local": {
+      "level": "Tested",
+      "operations": [
+        {
+          "name": "list_joined_teams",
+          "level": "Tested",
+          "evidenceRefs": [
+            "Provider request/stdio contract tests"
+          ],
+          "method": "contract-fixture"
+        },
+        {
+          "name": "list_team_channels",
+          "level": "Tested",
+          "evidenceRefs": [
+            "Provider request/stdio contract tests"
+          ],
+          "method": "contract-fixture"
+        }
+      ],
+      "evidenceRefs": [
+        "Provider request/stdio contract tests"
+      ],
+      "mode": "local"
+    },
+    "managed": {
+      "level": "Documented",
+      "operations": [
+        {
+          "name": "list_joined_teams",
+          "level": "Documented",
+          "evidenceRefs": [],
+          "method": "documentation"
+        },
+        {
+          "name": "list_team_channels",
+          "level": "Documented",
+          "evidenceRefs": [],
+          "method": "documentation"
+        }
+      ],
+      "evidenceRefs": [],
+      "mode": "managed"
+    }
+  },
+  "utility": {
+    "problem": "Find a team joined by your delegated account and inspect its channels before preparing a status report.",
+    "output": "Actual provider API results through local MCP tools"
+  }
 }

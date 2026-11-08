@@ -1,51 +1,70 @@
-# Microsoft Teams MCP setup and connection checker
+# Microsoft Teams MCP server
 
-Generate Microsoft Teams MCP client configuration, inspect available tools and validate hosted endpoint access through PipMCP.
+Find a team joined by your delegated account and inspect its channels before preparing a status report.
 
-Maintainer: jannikco · License: MIT · Verification: **mock-only**
+A direct-provider MCP server with useful local execution. No PipMCP account is required for local use. Provider API access and any provider charges are your responsibility.
 
 ## Quick start
 
-Requires Node.js 22 or later.
+Requires Node.js22+. Clone this repository, then run:
 
 ```sh
-npm ci
+npm ci --ignore-scripts
 npm test
 npm start
 ```
 
-The default example runs locally without credentials and makes no external changes. Verification status describes recorded evidence; local configuration tests do not establish that provider authentication or execution works.
+The default command inspects the tools offline. Configure your own credentials in your environment:
 
-## Connect microsoft-teams
+- `MICROSOFT_TEAMS_ACCESS_TOKEN`
 
-[Create or sign in to PipMCP](https://pipmcp.com/register?app=microsoft-teams&utm_source=github&utm_campaign=github-microsoft-teams-mcp) and select the integration. Connect your authorized provider account and copy its hosted MCP endpoint. Set PIPMCP_ENDPOINT and, if required, PIPMCP_TOKEN in your environment. Run npm start to produce client configuration; run npm start -- --live for a read-only connection check. Provider app presence is catalog evidence, not live verification.
+For local OAuth, use node local-auth/cli.mjs login ./connector.json with your own provider app; see AUTH.md. Your tokens remain in the native OS credential store.
 
-## Managed service
+Credential help: https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml
 
-[Continue with PipMCP](https://pipmcp.com/register?app=microsoft-teams&utm_source=github&utm_campaign=github-microsoft-teams-mcp). This repository is maintained by the integration team and does not imply endorsement by LinkedIn or other providers.
+## Execute a real read
 
-## Provenance and support
+Replace example record IDs with records you are authorized to access.
 
-Source revision: cf9d0944f337d19acd230c6fff17487014d388f3a5b048b551f57c8d4d920942. The complete manifest is in integration.json; SHA256SUMS covers the reviewed artifact. Open a repository issue without credentials or personal data. See SECURITY.md for sensitive reports. No telemetry is sent by this code; signup links include explicit campaign parameters.
-
-## Provider setup inventory
-
-Run `npm start -- --setup` to inspect this app's recorded authentication requirements and setup links offline. Credentials are entered in PipMCP; this repository lists required field names only.
-
-```json
-{
-  "type": "oauth2_authorization_code",
-  "requiredCredentialFields": [
-    "client_id",
-    "client_secret",
-    "owner_authorization"
-  ],
-  "requiredHeaderNames": [],
-  "helpUrl": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
-  "tenantRequired": false,
-  "accountParameterNames": []
-}
+```sh
+npm start -- --call list_joined_teams '{}'
 ```
 
-Provider documentation: https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml
-Provider website: https://www.microsoft.com/microsoft-teams
+## Use with an MCP client
+
+Launch `node /absolute/path/microsoft-teams-mcp/server.mjs` using stdio transport; pass credentials through the client environment. Stdout is reserved for JSON-RPC.
+
+## Tools
+
+| Tool | Effect | Purpose |
+| --- | --- | --- |
+| list_joined_teams | Read | List teams joined by the delegated user; requires Team.ReadBasic.All. |
+| list_team_channels | Read | List channels in one authorized team; requires Channel.ReadBasic.All. |
+
+## Concrete workflow
+
+Find a team joined by your delegated account and inspect its channels before preparing a status report.
+
+1. list_joined_teams
+2. list_team_channels
+
+## Optional writes
+
+Writes are disabled by default. Set CONNECTOR_ALLOW_WRITES=true and supply `_approval: {approved:true,idempotencyKey:"unique-request-id"}` on the specific call. Do not reuse a key for a different request. Uncertain outcomes are never automatically replayed; inspect the provider before another attempt.
+
+## Capability evidence
+
+Local: **Tested — HTTP fixtures and real stdio tools/call**. Managed: **Documented**. Provider authentication and live operations have not been established by these fixture tests. Evidence applies per operation and execution mode; setup discovery does not imply provider execution.
+
+## Managed production
+
+[Import with PipMCP](https://pipmcp.com/github/start?integration=openapi-to-mcp&utm_source=github&utm_campaign=github-microsoft-teams-mcp&utm_content=readme) when you want the hosted service. This provider is not currently listed as a managed template. Import selected-openapi.json (REST) or the official GraphQL schema linked in provenance, configure authentication, and review the tools before execution. Local credentials are not uploaded by this code. Review provider permissions in the managed onboarding. [Directory and related projects](https://jannikco.github.io/pipmcp-connectors/integrations/microsoft-teams/).
+
+## Provenance and maintenance
+
+- https://learn.microsoft.com/en-us/graph/api/overview
+- https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow
+- https://learn.microsoft.com/en-us/graph/api/user-list-joinedteams?view=graph-rest-1.0
+- https://learn.microsoft.com/en-us/graph/api/channel-list?view=graph-rest-1.0
+
+Maintainer:jannikco. MIT license for this code. See connector.json for selected operations and integration.json for evidence. Runtime dependencies retain their own licenses. Report sensitive issues through https://pipmcp.com/contact; do not post credentials or customer data in public issues.
