@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "version": "1.0.0",
+  "product": "pipmcp",
+  "credential": "PIPMCP_API_KEY",
+  "skills": [
+    {
+      "name": "pipmcp-microsoft-teams",
+      "description": "Connect AI agents to Microsoft Teams using one PipMCP API key and actual hosted tool discovery."
+    }
+  ],
+  "files": {
+    "skills/pipmcp-microsoft-teams/SKILL.md": "b9de2022d63bb0242318c1c6d9790d66456c49dbde3865ec7882641b9745017a"
+  }
+}
