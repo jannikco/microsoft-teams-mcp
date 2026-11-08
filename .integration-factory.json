@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "status": "ready",
+  "verification": "mock-only",
+  "releaseEligible": true,
+  "maintainer": "jannikco",
+  "license": "MIT",
+  "sourceRevision": "cf9d0944f337d19acd230c6fff17487014d388f3a5b048b551f57c8d4d920942",
+  "evidence": [
+    "Source-backed provider setup metadata",
+    "Offline configuration and MCP protocol tests"
+  ],
+  "provenance": [
+    "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml"
+  ],
+  "id": "microsoft-teams-mcp",
+  "kind": "mcp-setup",
+  "product": "pipmcp",
+  "title": "Microsoft Teams MCP setup and connection checker",
+  "description": "Generate Microsoft Teams MCP client configuration, inspect available tools and validate hosted endpoint access through PipMCP.",
+  "operationIds": [],
+  "appSlug": "microsoft-teams",
+  "appName": "Microsoft Teams",
+  "providerDocs": "https://raw.githubusercontent.com/microsoftgraph/msgraph-metadata/master/openapi/v1.0/openapi.yaml",
+  "providerWebsite": "https://www.microsoft.com/microsoft-teams",
+  "authentication": {
+    "type": "oauth2_authorization_code",
+    "requiredCredentialFields": [
+      "client_id",
+      "client_secret",
+      "owner_authorization"
+    ],
+    "requiredHeaderNames": [],
+    "helpUrl": "https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app",
+    "tenantRequired": false,
+    "accountParameterNames": []
+  },
+  "attributionSlug": "github-microsoft-teams-mcp",
+  "factory": "leadadapter-pipmcp",
+  "generatorVersion": 1
+}
